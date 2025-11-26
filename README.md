@@ -1,72 +1,136 @@
-# Sistema Distribuido de Base de Datos IoT con Apache Cassandra
-## Proyecto Final – Sistemas Distribuidos
+# 🚀 Sistema Distribuido IoT con Apache Cassandra + FastAPI (Google Cloud)
 
-Este proyecto implementa un sistema distribuido real basado en Apache Cassandra, con el objetivo de almacenar y consultar lecturas generadas por sensores IoT desplegados en múltiples sedes. El enfoque principal es demostrar los conceptos fundamentales de los sistemas distribuidos: particionamiento, replicación, tolerancia a fallos, transparencia, disponibilidad y consistencia ajustable.
+Este proyecto implementa un **sistema distribuido real** usando un clúster de **Apache Cassandra** desplegado en tres máquinas virtuales en Google Cloud Platform (GCP) y una API desarrollada con **FastAPI** para la ingestión y consulta de datos IoT.
 
-## Objetivo del Proyecto
-Diseñar e implementar un cluster de Cassandra de 2–3 nodos, configurados sin Docker (instalación manual), y construir un servicio backend que permita:
-- Registrar lecturas IoT mediante una API REST.
-- Consultar lecturas filtradas por sede, tipo de sensor y rango de tiempo.
-- Mostrar las propiedades distribuidas del sistema mediante pruebas de replicación, caída de nodos, transparencia y consistencia.
+El objetivo es demostrar conceptos fundamentales de los sistemas distribuidos:
+- Alta disponibilidad  
+- Replicación  
+- Tolerancia a fallos  
+- Transparencia  
+- Escalabilidad horizontal  
 
-## Arquitectura del Sistema
-### 1. Cluster de Apache Cassandra (2–3 nodos)
-Cada nodo posee:
-- cassandra.yaml propio
-- Directorios independientes de datos y logs
-- Puertos distintos
+---
 
-### 2. Backend (Node.js + Express)
-Endpoints:
-- POST /readings
-- GET /readings
+## 🧱 Arquitectura General
 
-### 3. Cliente / Scripts de prueba
-Scripts para testear:
-- Alta disponibilidad
-- Replicación
-- Consistencia
-- Transparencia ante fallos
+### 📌 3 nodos Cassandra
+- cass1 (seed) — 10.128.0.2  
+- cass2 — 10.128.0.3  
+- cass3 — 10.128.0.4  
 
-## Modelo de Datos (CQL)
+### 📌 1 VM FastAPI
+- api-iot (API pública)
+
+---
+
+## 📡 Flujo del Sistema
+
+Cliente → API FastAPI → Driver Cassandra → Clúster Cassandra
+
+---
+
+## ⚙️ Instalación de la API
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 ```
+
+Archivo `.env`:
+
+```
+CASSANDRA_CONTACT_POINTS=10.128.0.2,10.128.0.3,10.128.0.4
+CASSANDRA_DATACENTER=datacenter1
+CASSANDRA_KEYSPACE=iot
+API_PORT=8000
+```
+
+Ejecutar:
+
+```bash
+uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+---
+
+## 🗄️ Modelo de Datos
+
+### Keyspace
+
+```sql
 CREATE KEYSPACE iot
-WITH REPLICATION = { 'class': 'SimpleStrategy', 'replication_factor': 2 };
+WITH REPLICATION = {
+   'class':'NetworkTopologyStrategy',
+   'datacenter1':3
+};
+```
 
-USE iot;
+### Tabla
 
+```sql
 CREATE TABLE readings (
-    sede         text,
-    sensor_type  text,
-    sensor_id    text,
-    ts           timestamp,
-    value        double,
+    sede text,
+    sensor_type text,
+    sensor_id text,
+    ts timestamp,
+    value double,
     PRIMARY KEY ((sede, sensor_type), ts, sensor_id)
 ) WITH CLUSTERING ORDER BY (ts DESC);
 ```
 
-## Despliegue del Sistema (sin Docker)
-1. Instalar Apache Cassandra
-2. Crear carpetas para cada nodo
-3. Configurar cassandra.yaml para cada instancia
-4. Iniciar nodos:
-```
-CASSANDRA_CONF=/ruta/node1/conf cassandra -R
-CASSANDRA_CONF=/ruta/node2/conf cassandra -R
-CASSANDRA_CONF=/ruta/node3/conf cassandra -R
-```
-5. Verificar cluster:
-```
-nodetool status
+---
+
+## 🌐 Endpoints
+
+### **POST /readings**
+Guarda una lectura IoT.
+
+### **GET /readings**
+Consulta lecturas por sede y tipo de sensor.
+
+---
+
+## 🧪 Ejemplo de Uso
+
+Insertar:
+
+```bash
+curl -X POST "http://IP:8000/readings" -H "Content-Type: application/json" -d '{"sede":"Sede Norte","sensor_type":"temperature","sensor_id":"sensor-001","value":24.7}'
 ```
 
-## Pruebas del Sistema Distribuido
-- Replicación
-- Caída y recuperación de nodos
-- Niveles de consistencia
-- Balanceo y transparencia
+Consultar:
 
-## Conclusiones esperadas
-- Cassandra maneja replicación, fallos y consistencia automáticamente
-- El cliente es completamente transparente al nodo que responde
-- El sistema es altamente disponible y escalable horizontalmente
+```bash
+curl "http://IP:8000/readings?sede=Sede%20Norte&sensor_type=temperature"
+```
+
+---
+
+## 🛡️ Tolerancia a Fallos
+
+- Cassandra replica datos en 3 nodos (RF=3)
+- FastAPI usa balanceo automático
+- Si un nodo cae, el sistema sigue funcionando
+
+---
+
+## 📈 Trabajo Futuro
+
+- Integración con Kafka/MQTT  
+- Dashboard con Grafana  
+- Multi-datacenter  
+- Autenticación JWT  
+
+---
+
+## 👨‍💻 Autor
+
+**Juan Manuel Morales Santacruz**  
+Proyecto final — Sistemas Distribuidos
+
+---
+
+## 📜 Licencia
+
+MIT License
