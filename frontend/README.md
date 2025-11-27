@@ -34,19 +34,23 @@ Los archivos optimizados se generarán en la carpeta `dist/`
 
 ## 🌐 API
 
-El frontend está configurado por defecto para conectarse a la API desplegada en:
+El frontend está configurado para conectarse a la API desplegada en:
 `https://iot-db-distribuida-252092889958.us-central1.run.app`
 
 ### Cambiar entre API Local y Producción
 
-Si necesitas apuntar a otra API (por ejemplo, otra instancia en Cloud Run), crea un archivo `.env.local`:
+El frontend ahora detecta automáticamente si el backend local está disponible y, en caso de falla, usa la API pública en Cloud Run. Aun así puedes forzar un endpoint preferido con un archivo `.env.local`:
 
 ```env
 # frontend/.env.local
-VITE_API_URL=https://iot-db-distribuida-252092889958.us-central1.run.app
+# Prioriza tu backend local (se intentará primero)
+VITE_API_URL=http://localhost:8000
+
+# También puedes apuntar directamente a Cloud Run
+# VITE_API_URL=https://iot-db-distribuida-252092889958.us-central1.run.app
 ```
 
-> Si no defines la variable, se usará automáticamente la API pública en Cloud Run.
+> Si no defines la variable, el frontend intentará en este orden: valor de `VITE_API_URL`, `http://localhost:8000` y la URL de Cloud Run.
 
 ## 📁 Estructura del Proyecto
 

@@ -1,4 +1,6 @@
-# 🚀 Sistema Distribuido IoT con Apache Cassandra + FastAPI (Google Cloud)
+# 🚀 Sistema Distribuido IoT con Apache Cassandra + FastAPI
+
+**Frontend React + Backend FastAPI + Apache Cassandra**
 
 Este proyecto implementa un **sistema distribuido real** usando un clúster de **Apache Cassandra** desplegado en tres máquinas virtuales en Google Cloud Platform (GCP) y una API desarrollada con **FastAPI** para la ingestión y consulta de datos IoT.
 
@@ -31,28 +33,91 @@ Cliente → API FastAPI → Driver Cassandra → Clúster Cassandra
 
 ---
 
-## ⚙️ Instalación de la API
+## ⚡ Inicio Rápido (Desarrollo Local)
+
+### Opción 1: Scripts Automáticos (Windows PowerShell)
+
+**Terminal 1 - Backend:**
+```powershell
+.\start-backend.ps1
+```
+
+**Terminal 2 - Frontend:**
+```powershell
+.\start-frontend.ps1
+```
+
+### Opción 2: Manual
+
+## ⚙️ Instalación y Desarrollo Local
+
+### Backend (API FastAPI)
+
+1. Crear entorno virtual e instalar dependencias:
 
 ```bash
 python3 -m venv venv
-source venv/bin/activate
+source venv/bin/activate  # En Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Archivo `.env`:
+2. Crear archivo `.env` en la raíz del proyecto:
 
 ```
 CASSANDRA_CONTACT_POINTS=10.128.0.2,10.128.0.3,10.128.0.4
 CASSANDRA_DATACENTER=datacenter1
 CASSANDRA_KEYSPACE=iot
-API_PORT=8000
 ```
 
-Ejecutar:
+3. Ejecutar la API:
 
 ```bash
-uvicorn main:app --host 0.0.0.0 --port 8000
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
+
+La API estará disponible en: `http://localhost:8000`
+Documentación interactiva: `http://localhost:8000/docs`
+
+### Frontend (React + Vite)
+
+1. Instalar dependencias:
+
+```bash
+cd frontend
+npm install
+```
+
+2. Configurar URL de la API (opcional):
+
+Crear archivo `frontend/.env.local`:
+```
+VITE_API_URL=http://localhost:8000
+```
+
+O editar `frontend/src/App.tsx` y cambiar la constante `API_URL`.
+
+3. Ejecutar en desarrollo:
+
+```bash
+npm run dev
+```
+
+El frontend estará disponible en: `http://localhost:5173`
+
+### Ejecutar Todo Localmente
+
+1. **Terminal 1 - Backend:**
+```bash
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+2. **Terminal 2 - Frontend:**
+```bash
+cd frontend
+npm run dev
+```
+
+3. Abrir navegador en: `http://localhost:5173`
 
 ---
 

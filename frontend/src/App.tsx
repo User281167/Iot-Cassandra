@@ -4,15 +4,25 @@ import ReadingForm from './components/ReadingForm'
 import ReadingList from './components/ReadingList'
 import FilterPanel from './components/FilterPanel'
 
+// URL de la API - cambiar según el entorno
+// Para desarrollo local: 'http://localhost:8000'
+// Para producción: 'https://iot-db-distribuida-252092889958.us-central1.run.app'
+const DEFAULT_API_URL = import.meta.env.VITE_API_URL
 const CLOUD_RUN_URL = 'https://iot-db-distribuida-252092889958.us-central1.run.app'
-// URL de la API - Cloud Run por defecto; se puede sobreescribir con VITE_API_URL
-const DEFAULT_API_URL = import.meta.env.VITE_API_URL || CLOUD_RUN_URL
+const LOCAL_URL = 'http://localhost:8000'
 
-const API_CANDIDATES: string[] = [DEFAULT_API_URL].filter(
-  (url): url is string => Boolean(url && url.trim())
+const API_CANDIDATES = Array.from(
+  new Set(
+    [DEFAULT_API_URL, LOCAL_URL, CLOUD_RUN_URL].filter(
+      (url): url is string => Boolean(url && url.trim())
+    )
+  )
 )
 
 const getApiLabel = (url: string) => {
+  if (url.includes('localhost') || url.includes('127.0.0.1')) {
+    return 'Backend local'
+  }
   if (url.includes('run.app')) {
     return 'Cloud Run'
   }
@@ -72,9 +82,9 @@ function App() {
     const checkConnection = async () => {
       try {
         console.log('[DEBUG] Verificando conexión con las APIs configuradas')
-        const health = await callApi<{ status?: string }>('/health', { timeout: 5000 })
-        console.log('[DEBUG] API Health:', health)
-        if (health?.status === 'healthy') {
+        const ping = await callApi<{ status?: string; message?: string }>('/', { timeout: 5000 })
+        console.log('[DEBUG] API Root:', ping)
+        if (ping?.status === 'ok' || ping?.status === 'healthy') {
           loadSedes()
           return
         }
@@ -116,7 +126,7 @@ function App() {
         url: err.config?.url
       })
       if (err.code === 'ECONNABORTED' || err.message === 'Network Error' || err.code === 'ERR_NETWORK') {
-        setError('Error de conexión: No se pudo establecer comunicación con la API en Cloud Run.')
+        setError('Error de conexión: No se pudo conectar con ninguna API disponible. Verifica el backend local o la URL de Cloud Run.')
       } else if (err.response?.status === 503) {
         setError('Servicio temporalmente no disponible. La API está desplegada pero Cassandra no está conectado.')
       } else {
@@ -258,6 +268,12 @@ function App() {
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             <p className="font-semibold">Error:</p>
             <p>{error}</p>
+            {error.includes('Cassandra') && (
+              <p className="text-sm mt-2 text-red-600">
+                💡 Nota: Esto es normal en desarrollo local si no tienes acceso a Cassandra. 
+                El sistema está funcionando correctamente, solo necesita la conexión a la base de datos para guardar/consultar datos.
+              </p>
+            )}
           </div>
         )}
 
