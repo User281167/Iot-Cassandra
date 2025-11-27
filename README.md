@@ -27,6 +27,8 @@ El objetivo es demostrar conceptos fundamentales de los sistemas distribuidos:
 
 Cliente → API FastAPI → Driver Cassandra → Clúster Cassandra
 
+<image src="./diagram.png" width="100%" />
+
 ---
 
 ## ⚙️ Instalación de la API
