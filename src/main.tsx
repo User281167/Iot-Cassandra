@@ -1,10 +1,14 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "./style.css";
+import { SensorProvider } from "./context/SensorContext.tsx";
 import App from "./App.tsx";
+
+import "./style.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App />
+    <SensorProvider>
+      <App />
+    </SensorProvider>
   </StrictMode>
 );
