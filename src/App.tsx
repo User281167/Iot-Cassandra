@@ -6,22 +6,6 @@ import FilterPanel from "./components/FilterPanel";
 
 const CLOUD_RUN_URL = import.meta.env.VITE_API_URL;
 
-const API_CANDIDATES = Array.from(
-  new Set(
-    [CLOUD_RUN_URL].filter((url): url is string => Boolean(url && url.trim()))
-  )
-);
-
-const getApiLabel = (url: string) => {
-  if (url.includes("localhost") || url.includes("127.0.0.1")) {
-    return "Backend local";
-  }
-  if (url.includes("run.app")) {
-    return "Cloud Run";
-  }
-  return "API";
-};
-
 interface Reading {
   sede: string;
   sensor_type: string;
@@ -34,12 +18,13 @@ function App() {
   const [readings, setReadings] = useState<Reading[]>([]);
   const [sedes, setSedes] = useState<string[]>([]);
   const [sensorTypes, setSensorTypes] = useState<string[]>([]);
-  const [activeApiUrl, setActiveApiUrl] = useState<string>(API_CANDIDATES[0]);
+
   const [filters, setFilters] = useState({
     sede: "",
     sensor_type: "",
     limit: 20,
   });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [apiStatus, setApiStatus] = useState<
@@ -51,23 +36,23 @@ function App() {
     config: AxiosRequestConfig = {}
   ): Promise<T> => {
     let lastError: unknown;
-    for (const candidate of API_CANDIDATES) {
-      try {
-        const response = await axios({
-          baseURL: candidate,
-          url: path,
-          timeout: 10000,
-          headers: { "Content-Type": "application/json" },
-          ...config,
-        });
-        setActiveApiUrl(candidate);
-        setApiStatus("connected");
-        return response.data as T;
-      } catch (err) {
-        lastError = err;
-        console.warn(`[DEBUG] Error con ${candidate}${path}:`, err);
-      }
+
+    try {
+      const response = await axios({
+        baseURL: CLOUD_RUN_URL,
+        url: path,
+        timeout: 10000,
+        headers: { "Content-Type": "application/json" },
+        ...config,
+      });
+
+      setApiStatus("connected");
+      return response.data as T;
+    } catch (err) {
+      lastError = err;
+      console.warn(`[DEBUG] Error con ${CLOUD_RUN_URL}${path}:`, err);
     }
+
     setApiStatus("error");
     throw lastError;
   };
@@ -77,10 +62,13 @@ function App() {
     const checkConnection = async () => {
       try {
         console.log("[DEBUG] Verificando conexión con las APIs configuradas");
+
         const ping = await callApi<{ status?: string; message?: string }>("/", {
           timeout: 5000,
         });
+
         console.log("[DEBUG] API Root:", ping);
+
         if (ping?.status === "ok" || ping?.status === "healthy") {
           loadSedes();
           return;
@@ -88,10 +76,12 @@ function App() {
         loadSedes();
       } catch (err: any) {
         console.error("[DEBUG] Error verificando conexión:", err);
+
         // Intentar cargar sedes de todas formas
         loadSedes();
       }
     };
+
     checkConnection();
   }, []);
 
@@ -107,14 +97,18 @@ function App() {
   const loadSedes = async () => {
     try {
       console.log("[DEBUG] Cargando sedes con fallback de API");
+
       const data = await callApi<string[]>("/sedes", { timeout: 15000 });
-      console.log("[DEBUG] Sedes recibidas:", data);
       setSedes(data || []);
+
+      console.log("[DEBUG] Sedes recibidas:", data);
+
       if (data && data.length === 0) {
         setError("No hay sedes disponibles. Crea una lectura primero.");
       }
     } catch (err: any) {
       console.error("Error cargando sedes:", err);
+
       console.error("Detalles del error:", {
         message: err.message,
         code: err.code,
@@ -122,6 +116,7 @@ function App() {
         status: err.response?.status,
         url: err.config?.url,
       });
+
       if (
         err.code === "ECONNABORTED" ||
         err.message === "Network Error" ||
@@ -149,7 +144,9 @@ function App() {
         params: { sede },
         timeout: 10000,
       });
+
       setSensorTypes(data || []);
+
       if (data && data.length === 0) {
         setError(
           `No hay tipos de sensores para la sede "${sede}". Crea una lectura primero.`
@@ -157,6 +154,7 @@ function App() {
       }
     } catch (err: any) {
       console.error("Error cargando tipos de sensores:", err);
+
       if (err.code === "ECONNABORTED" || err.message === "Network Error") {
         setError("Error de conexión: No se pudo conectar con la API.");
       } else {
@@ -176,6 +174,7 @@ function App() {
 
     setLoading(true);
     setError(null);
+
     try {
       const data = await callApi<Reading[]>("/readings", {
         params: {
@@ -185,9 +184,11 @@ function App() {
         },
         timeout: 10000,
       });
+
       setReadings(data);
     } catch (err: any) {
       console.error("Error cargando lecturas:", err);
+
       if (err.code === "ECONNABORTED" || err.message === "Network Error") {
         setError("Error de conexión: No se pudo conectar con la API.");
       } else if (err.response?.status === 503) {
@@ -221,10 +222,12 @@ function App() {
       ) {
         loadReadings();
       }
+
       // Recargar sedes por si es nueva
       loadSedes();
     } catch (err: any) {
       console.error("Error creando lectura:", err);
+
       if (err.code === "ECONNABORTED" || err.message === "Network Error") {
         throw new Error("Error de conexión: No se pudo conectar con la API.");
       } else if (err.response?.status === 503) {
@@ -244,20 +247,22 @@ function App() {
           <h1 className="text-4xl font-bold text-gray-800 mb-2">
             Sistema IoT Distribuido
           </h1>
+
           <p className="text-gray-600">
             Gestión de lecturas de sensores con Apache Cassandra
           </p>
+
           <div className="mt-2 text-sm text-gray-500">
             API en uso:{" "}
             <span className="font-semibold text-indigo-600">
-              {getApiLabel(activeApiUrl)} ({activeApiUrl})
+              {CLOUD_RUN_URL}
             </span>
             <span className="ml-2 text-xs px-2 py-1 rounded-full border border-indigo-200 text-indigo-700 bg-indigo-50">
               {apiStatus === "connected"
                 ? "Conectado"
                 : apiStatus === "checking"
-                ? "Verificando..."
-                : "Error"}
+                  ? "Verificando..."
+                  : "Error"}
             </span>
           </div>
         </header>
@@ -267,6 +272,7 @@ function App() {
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">
               Nueva Lectura
             </h2>
+
             <ReadingForm sedes={sedes} onCreateReading={handleCreateReading} />
           </div>
 
@@ -274,6 +280,7 @@ function App() {
             <h2 className="text-2xl font-semibold text-gray-800 mb-4">
               Filtros de Búsqueda
             </h2>
+
             <FilterPanel
               sedes={sedes}
               sensorTypes={sensorTypes}
@@ -289,6 +296,7 @@ function App() {
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             <p className="font-semibold">Error:</p>
             <p>{error}</p>
+
             {error.includes("Cassandra") && (
               <p className="text-sm mt-2 text-red-600">
                 💡 Nota: Esto es normal en desarrollo local si no tienes acceso
@@ -304,6 +312,7 @@ function App() {
           <h2 className="text-2xl font-semibold text-gray-800 mb-4">
             Lecturas ({readings.length})
           </h2>
+
           <ReadingList readings={readings} loading={loading} />
         </div>
       </div>

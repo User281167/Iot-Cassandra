@@ -1,49 +1,51 @@
 interface Reading {
-  sede: string
-  sensor_type: string
-  sensor_id: string
-  ts: string
-  value: number
+  sede: string;
+  sensor_type: string;
+  sensor_id: string;
+  ts: string;
+  value: number;
 }
 
 interface ReadingListProps {
-  readings: Reading[]
-  loading: boolean
+  readings: Reading[];
+  loading: boolean;
 }
 
 export default function ReadingList({ readings, loading }: ReadingListProps) {
   const formatDate = (dateString: string) => {
     try {
-      const date = new Date(dateString)
-      return new Intl.DateTimeFormat('es-ES', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        timeZoneName: 'short'
-      }).format(date)
+      const date = new Date(dateString);
+
+      return new Intl.DateTimeFormat("es-ES", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        timeZoneName: "short",
+      }).format(date);
     } catch {
-      return dateString
+      return dateString;
     }
-  }
+  };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
       </div>
-    )
+    );
   }
 
   if (readings.length === 0) {
     return (
       <div className="text-center py-12 text-gray-500">
         <p>No hay lecturas para mostrar.</p>
+
         <p className="text-sm mt-2">Usa los filtros para buscar lecturas.</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -68,6 +70,7 @@ export default function ReadingList({ readings, loading }: ReadingListProps) {
             </th>
           </tr>
         </thead>
+
         <tbody className="bg-white divide-y divide-gray-200">
           {readings.map((reading, index) => (
             <tr key={index} className="hover:bg-gray-50">
@@ -93,6 +96,5 @@ export default function ReadingList({ readings, loading }: ReadingListProps) {
         </tbody>
       </table>
     </div>
-  )
+  );
 }
-
