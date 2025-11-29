@@ -5,6 +5,7 @@ import Footer from "./components/Footer";
 
 import { useSensorContext } from "./context/SensorContext";
 import { CLOUD_RUN_URL } from "./utils/env";
+import ReadingGraph from "./components/ReadingGraph";
 
 function App() {
   const {
@@ -104,6 +105,7 @@ function App() {
             </h2>
 
             <ReadingList readings={readings} loading={loading} />
+            <ReadingGraph readings={readings} loading={loading} />
           </section>
         </main>
       </div>
