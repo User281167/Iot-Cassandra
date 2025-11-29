@@ -1,10 +1,4 @@
-interface Reading {
-  sede: string;
-  sensor_type: string;
-  sensor_id: string;
-  ts: string;
-  value: number;
-}
+import { type Reading } from "../utils/types";
 
 interface ReadingListProps {
   readings: Reading[];
@@ -12,24 +6,6 @@ interface ReadingListProps {
 }
 
 export default function ReadingList({ readings, loading }: ReadingListProps) {
-  const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-
-      return new Intl.DateTimeFormat("es-ES", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        timeZoneName: "short",
-      }).format(date);
-    } catch {
-      return dateString;
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
@@ -89,7 +65,9 @@ export default function ReadingList({ readings, loading }: ReadingListProps) {
                 {reading.value.toFixed(2)}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {formatDate(reading.ts)}
+                {reading.ts instanceof Date
+                  ? reading.ts.toLocaleString()
+                  : reading.ts}
               </td>
             </tr>
           ))}

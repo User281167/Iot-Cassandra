@@ -1,13 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { callApi } from "../api/sensor.api";
-
-interface Reading {
-  sede: string;
-  sensor_type: string;
-  sensor_id: string;
-  ts: string;
-  value: number;
-}
+import { type Reading } from "../utils/types";
+import { dateGTMToLocal } from "../utils/utils";
 
 interface SensorContextType {
   readings: Reading[];
@@ -200,7 +194,12 @@ export function SensorProvider({ children }: { children: React.ReactNode }) {
         setApiStatus
       );
 
-      setReadings(data);
+      const formatedReadings = data.map(reading => ({
+        ...reading,
+        ts: dateGTMToLocal(reading.ts),
+      }));
+
+      setReadings(formatedReadings);
     } catch (err: any) {
       console.error("Error cargando lecturas:", err);
 
