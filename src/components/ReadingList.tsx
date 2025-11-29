@@ -1,4 +1,5 @@
 import { type Reading } from "../utils/types";
+import Loader from "./Loader";
 
 interface ReadingListProps {
   readings: Reading[];
@@ -7,11 +8,7 @@ interface ReadingListProps {
 
 export default function ReadingList({ readings, loading }: ReadingListProps) {
   if (loading) {
-    return (
-      <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-      </div>
-    );
+    return <Loader />;
   }
 
   if (readings.length === 0) {
@@ -25,7 +22,7 @@ export default function ReadingList({ readings, loading }: ReadingListProps) {
   }
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-auto max-h-[70vh]">
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>

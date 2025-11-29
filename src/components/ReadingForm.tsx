@@ -10,10 +10,7 @@ interface ReadingFormProps {
   }) => Promise<void>;
 }
 
-export default function ReadingForm({
-  sedes,
-  onCreateReading,
-}: ReadingFormProps) {
+export default function ReadingForm({ onCreateReading }: ReadingFormProps) {
   const [formData, setFormData] = useState({
     sede: "",
     sensor_type: "",

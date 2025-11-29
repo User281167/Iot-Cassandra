@@ -6,6 +6,7 @@ import {
   CartesianGrid,
   Tooltip,
 } from "recharts";
+import Loader from "./Loader";
 import { type Reading } from "../utils/types";
 
 interface ReadingListProps {
@@ -15,11 +16,7 @@ interface ReadingListProps {
 
 export default function ReadingGraph({ readings, loading }: ReadingListProps) {
   if (loading) {
-    return (
-      <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-      </div>
-    );
+    return <Loader />;
   }
 
   if (readings.length === 0) {
@@ -31,7 +28,13 @@ export default function ReadingGraph({ readings, loading }: ReadingListProps) {
   }
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto my-8">
+      <h2 className="flex items-center text-lg">
+        <span className="h-px flex-1 bg-linear-to-r from-transparent to-gray-300"></span>
+        <span className="shrink-0 px-4 text-gray-900">Gráfico de Lecturas</span>
+        <span className="h-px flex-1 bg-linear-to-l from-transparent to-gray-300"></span>
+      </h2>
+
       <div className="min-w-full divide-y divide-gray-200 bg-red-">
         <AreaChart
           style={{
