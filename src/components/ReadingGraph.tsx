@@ -43,13 +43,15 @@ export default function ReadingGraph({ readings, loading }: ReadingListProps) {
             aspectRatio: 1.618,
           }}
           responsive
-          data={readings.map(reading => ({
-            name:
-              reading.ts instanceof Date
-                ? reading.ts.toLocaleString()
-                : reading.ts,
-            uv: reading.value,
-          }))}
+          data={readings
+            .map(reading => ({
+              name:
+                reading.ts instanceof Date
+                  ? reading.ts.toLocaleString()
+                  : reading.ts,
+              uv: reading.value,
+            }))
+            .reverse()}
           margin={{
             top: 20,
             right: 0,

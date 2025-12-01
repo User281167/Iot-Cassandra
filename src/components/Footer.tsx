@@ -21,6 +21,10 @@ export default function Footer() {
       url: "https://wokwi.com/projects/448750230873692161",
       title: "Wokwi - Sensor de Gas",
     },
+    {
+      url: "https://wokwi.com/projects/449108364609552385",
+      title: "Wokwi - Sensor Movimiento & Echo",
+    },
   ];
 
   return (
