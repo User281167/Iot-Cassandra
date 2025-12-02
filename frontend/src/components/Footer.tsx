@@ -3,12 +3,8 @@ import { CLOUD_RUN_URL } from "../utils/env";
 export default function Footer() {
   const gitLinks = [
     {
-      url: "https://github.com/AndresMejia962/iot-frontend",
-      title: "Iot Frontend",
-    },
-    {
-      url: "https://github.com/jmorales284/IoT-db-distribuida",
-      title: "Iot Backend",
+      url: "https://github.com/User281167/Iot-Cassandra",
+      title: "Github",
     },
   ];
 
