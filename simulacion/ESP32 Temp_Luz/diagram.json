@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "author": "Anonymous maker",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-breadboard-mini", "id": "bb1", "top": -231.8, "left": -252, "attrs": {} },
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": -192, "left": 24.04, "attrs": {} },
+    {
+      "type": "wokwi-ntc-temperature-sensor",
+      "id": "ntc1",
+      "top": -74.2,
+      "left": -240.6,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-photoresistor-sensor",
+      "id": "ldr1",
+      "top": -323.2,
+      "left": -373.6,
+      "attrs": {}
+    }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "esp:GND.1", "bb1:17b.j", "black", [ "h0" ] ],
+    [ "esp:5V", "bb1:1b.i", "red", [ "h0" ] ],
+    [ "ntc1:GND", "bb1:16b.j", "black", [ "h0" ] ],
+    [ "ldr1:VCC", "bb1:11b.i", "red", [ "h0" ] ],
+    [ "ldr1:GND", "bb1:13b.j", "black", [ "h0" ] ],
+    [ "ntc1:OUT", "esp:32", "green", [ "h0" ] ],
+    [ "esp:16", "ldr1:DO", "green", [ "h0" ] ],
+    [ "esp:3V3", "bb1:17b.f", "green", [ "h0" ] ],
+    [ "ntc1:VCC", "bb1:15b.f", "red", [ "h0" ] ]
+  ],
+  "dependencies": {}
+}

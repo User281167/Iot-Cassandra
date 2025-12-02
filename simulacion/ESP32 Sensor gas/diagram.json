@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "author": "Anonymous maker",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-breadboard-mini", "id": "bb1", "top": -231.8, "left": -252, "attrs": {} },
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": -192, "left": 24.04, "attrs": {} },
+    { "type": "wokwi-gas-sensor", "id": "gas1", "top": -323.7, "left": -329, "attrs": {} }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "esp:GND.1", "bb1:17b.j", "black", [ "h0" ] ],
+    [ "esp:5V", "bb1:1b.i", "red", [ "h0" ] ],
+    [ "esp:3V3", "bb1:17b.f", "green", [ "h0" ] ],
+    [ "gas1:VCC", "bb1:7b.i", "red", [ "h0" ] ],
+    [ "gas1:GND", "bb1:8b.j", "black", [ "h0" ] ],
+    [ "gas1:AOUT", "esp:32", "green", [ "h0" ] ]
+  ],
+  "dependencies": {}
+}
